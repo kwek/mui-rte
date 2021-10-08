@@ -52,6 +52,7 @@ export declare type TToolbarComponentProps = {
 export declare type TCustomControl = {
     id?: string;
     name: string;
+    style?: string,
     icon?: JSX.Element;
     type: TControlType;
     component?: FunctionComponent<TToolbarComponentProps>;
