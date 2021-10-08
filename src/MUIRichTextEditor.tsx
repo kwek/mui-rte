@@ -1,26 +1,54 @@
 import React, {
-    FunctionComponent, useEffect, useState, useRef,
-    forwardRef, useImperativeHandle, ForwardRefRenderFunction
+    forwardRef,
+    ForwardRefRenderFunction,
+    FunctionComponent,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState
 } from 'react'
 import Immutable from 'immutable'
 import classNames from 'classnames'
-import { createStyles, withStyles, WithStyles, CSSProperties, CreateCSSProperties, PropsFunc } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
-import { Paper } from '@mui/material'
+import {CreateCSSProperties, createStyles, CSSProperties, PropsFunc, WithStyles, withStyles} from '@mui/styles'
+import {Theme} from '@mui/material/styles'
+import {Paper} from '@mui/material'
 import {
-    Editor, EditorState, convertFromRaw, RichUtils, AtomicBlockUtils,
-    CompositeDecorator, convertToRaw, DefaultDraftBlockRenderMap, DraftEditorCommand,
-    DraftHandleValue, DraftStyleMap, ContentBlock, DraftDecorator,
-    SelectionState, KeyBindingUtil, getDefaultKeyBinding, Modifier, DraftBlockRenderMap
+    AtomicBlockUtils,
+    CompositeDecorator,
+    ContentBlock,
+    convertFromRaw,
+    convertToRaw,
+    DefaultDraftBlockRenderMap,
+    DraftBlockRenderMap,
+    DraftDecorator,
+    DraftEditorCommand,
+    DraftHandleValue,
+    DraftStyleMap,
+    Editor,
+    EditorState,
+    getDefaultKeyBinding,
+    KeyBindingUtil,
+    Modifier,
+    RichUtils,
+    SelectionState
 } from 'draft-js'
-import Toolbar, { TToolbarControl, TCustomControl, TToolbarButtonSize } from './components/Toolbar'
+import Toolbar, {TCustomControl, TToolbarButtonSize, TToolbarControl} from './components/Toolbar'
 import Link from './components/Link'
 import Media from './components/Media'
 import Blockquote from './components/Blockquote'
 import CodeBlock from './components/CodeBlock'
-import UrlPopover, { TAlignment, TUrlData, TMediaType } from './components/UrlPopover'
-import Autocomplete, { TAutocompleteItem } from './components/Autocomplete'
-import { getSelectionInfo, removeBlockFromMap, atomicBlockExists, isGreaterThan, clearInlineStyles, getEditorBounds, getLineNumber, TPosition } from './utils'
+import UrlPopover, {TAlignment, TMediaType, TUrlData} from './components/UrlPopover'
+import Autocomplete, {TAutocompleteItem} from './components/Autocomplete'
+import {
+    atomicBlockExists,
+    clearInlineStyles,
+    getEditorBounds,
+    getLineNumber,
+    getSelectionInfo,
+    isGreaterThan,
+    removeBlockFromMap,
+    TPosition
+} from './utils'
 
 export type TDecorator = {
     component: FunctionComponent
@@ -94,7 +122,8 @@ export type TMUIRichTextEditorProps = {
     onBlur?: () => void
 }
 
-interface IMUIRichTextEditorProps extends TMUIRichTextEditorProps, WithStyles<typeof styles> { }
+interface IMUIRichTextEditorProps extends TMUIRichTextEditorProps, WithStyles<typeof styles> {
+}
 
 type TMUIRichTextEditorState = {
     anchorUrlPopover?: HTMLElement
@@ -184,11 +213,11 @@ const styles = (theme: Theme & TMUIRichTextEditorStyles) => createStyles({
 const blockRenderMap = Immutable.Map({
     'blockquote': {
         element: "blockquote",
-        wrapper: <Blockquote />
+        wrapper: <Blockquote/>
     },
     'code-block': {
         element: "pre",
-        wrapper: <CodeBlock />
+        wrapper: <CodeBlock/>
     }
 })
 const styleRenderMap: DraftStyleMap = {
@@ -200,7 +229,7 @@ const styleRenderMap: DraftStyleMap = {
     }
 }
 
-const { hasCommandModifier } = KeyBindingUtil
+const {hasCommandModifier} = KeyBindingUtil
 const autocompleteMinSearchCharCount = 2
 const lineHeight = 26
 const defaultInlineToolbarControls = ["bold", "italic", "underline", "clear"]
@@ -250,7 +279,7 @@ const useEditorState = (props: IMUIRichTextEditorProps) => {
 }
 
 const MUIRichTextEditor: ForwardRefRenderFunction<TMUIRichTextEditorRef, IMUIRichTextEditorProps> = (props, ref) => {
-    const { classes, controls, customControls } = props
+    const {classes, controls, customControls} = props
 
     const [state, setState] = useState<TMUIRichTextEditorState>({})
     const [focus, setFocus] = useState(false)
@@ -361,7 +390,7 @@ const MUIRichTextEditor: ForwardRefRenderFunction<TMUIRichTextEditorRef, IMUIRic
             if (!editor) {
                 return
             }
-            const { editorRect, selectionRect } = getEditorBounds(editor)
+            const {editorRect, selectionRect} = getEditorBounds(editor)
             if (!selectionRect) {
                 return
             }
@@ -392,7 +421,7 @@ const MUIRichTextEditor: ForwardRefRenderFunction<TMUIRichTextEditorRef, IMUIRic
         if (!editor) {
             return
         }
-        const { editorRect, selectionRect } = getEditorBounds(editor)
+        const {editorRect, selectionRect} = getEditorBounds(editor)
         const line = getLineNumber(editorState)
         const top = selectionRect ? selectionRect.top : editorRect.top + (lineHeight * line)
         const left = selectionRect ? selectionRect.left : editorRect.left
@@ -616,8 +645,7 @@ const MUIRichTextEditor: ForwardRefRenderFunction<TMUIRichTextEditorRef, IMUIRic
         if (newState) {
             handleChange(newState)
             return "handled"
-        }
-        else {
+        } else {
             if (command.includes("mui-autocomplete")) {
                 if (command === "mui-autocomplete-insert") {
                     handleAutocompleteSelected()
@@ -643,26 +671,21 @@ const MUIRichTextEditor: ForwardRefRenderFunction<TMUIRichTextEditorRef, IMUIRic
         if (!props.customControls) {
             return
         }
-        for (let control of props.customControls) {
-            if (control.name.toUpperCase() === style) {
-                if (control.onClick) {
-                    setTimeout(() => editorRef.current?.blur(), 0)
-                    const newState = control.onClick(editorState, control.name, document.getElementById(id))
-                    if (newState) {
-                        if (newState.getSelection().isCollapsed()) {
-                            setEditorState(newState)
-                        }
-                        else {
-                            updateStateForPopover(newState)
-                        }
-                    }
-                    else {
-                        if (!editorState.getSelection().isCollapsed()) {
-                            refocus()
-                        }
-                    }
+
+        const control = props.customControls?.find(c => (c.style ?? c.name) === style)
+        if (control?.onClick) {
+            setTimeout(() => editorRef.current?.blur(), 0)
+            const newState = control.onClick(editorState, control.name, document.getElementById(id))
+            if (newState) {
+                if (newState.getSelection().isCollapsed()) {
+                    setEditorState(newState)
+                } else {
+                    updateStateForPopover(newState)
                 }
-                break
+            } else {
+                if (!editorState.getSelection().isCollapsed()) {
+                    refocus()
+                }
             }
         }
     }
@@ -776,7 +799,7 @@ const MUIRichTextEditor: ForwardRefRenderFunction<TMUIRichTextEditorRef, IMUIRic
     }
 
     const confirmLink = (url?: string) => {
-        const { urlKey } = state
+        const {urlKey} = state
         if (!url) {
             if (urlKey) {
                 removeLink()
@@ -795,11 +818,10 @@ const MUIRichTextEditor: ForwardRefRenderFunction<TMUIRichTextEditorRef, IMUIRic
         if (urlKey) {
             contentState.replaceEntityData(urlKey, data)
             replaceEditorState = EditorState.push(editorState, contentState, "apply-entity")
-        }
-        else {
+        } else {
             const contentStateWithEntity = contentState.createEntity('LINK', 'MUTABLE', data)
             const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
-            const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity })
+            const newEditorState = EditorState.set(editorState, {currentContent: contentStateWithEntity})
             replaceEditorState = RichUtils.toggleLink(
                 newEditorState,
                 newEditorState.getSelection(),
@@ -818,7 +840,7 @@ const MUIRichTextEditor: ForwardRefRenderFunction<TMUIRichTextEditorRef, IMUIRic
     }
 
     const confirmMedia = (url?: string, width?: number, height?: number, alignment?: TAlignment, type?: TMediaType) => {
-        const { urlKey } = state
+        const {urlKey} = state
         if (!url) {
             if (urlKey) {
                 removeMedia()
@@ -840,8 +862,7 @@ const MUIRichTextEditor: ForwardRefRenderFunction<TMUIRichTextEditorRef, IMUIRic
             contentState.replaceEntityData(urlKey, data)
             const newEditorState = EditorState.push(editorState, contentState, "apply-entity")
             updateStateForPopover(EditorState.forceSelection(newEditorState, newEditorState.getCurrentContent().getSelectionAfter()))
-        }
-        else {
+        } else {
             const newEditorState = insertAtomicBlock(editorState, "IMAGE", data)
             updateStateForPopover(EditorState.forceSelection(newEditorState, newEditorState.getCurrentContent().getSelectionAfter()))
         }
@@ -1150,4 +1171,4 @@ const MUIRichTextEditor: ForwardRefRenderFunction<TMUIRichTextEditorRef, IMUIRic
     )
 }
 
-export default withStyles(styles, { withTheme: true, name: "MUIRichTextEditor" })(forwardRef(MUIRichTextEditor))
+export default withStyles(styles, {withTheme: true, name: "MUIRichTextEditor"})(forwardRef(MUIRichTextEditor))

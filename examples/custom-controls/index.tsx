@@ -4,6 +4,17 @@ import InvertColorsIcon from '@mui/icons-material/InvertColors'
 import MUIRichTextEditor, { TToolbarComponentProps } from '../../'
 import { EditorState } from 'draft-js'
 
+import React, { FunctionComponent } from 'react'
+import { Chip, Avatar, Button } from '@material-ui/core'
+import InvertColorsIcon from '@material-ui/icons/InvertColors'
+import LooksOneIcon from '@material-ui/icons/LooksOne'
+import LooksTwoIcon from '@material-ui/icons/LooksTwo'
+import Looks3Icon from '@material-ui/icons/Looks3'
+import MUIRichTextEditor from '../../'
+import { TToolbarComponentProps } from '../../src/components/Toolbar'
+import { EditorState } from 'draft-js'
+
+
 const save = (data: string) => {
     console.log(data)
 }
@@ -62,8 +73,26 @@ const CustomControls = () => {
         <MUIRichTextEditor
             label="Type something here..."
             onSave={save}
-            controls={["title", "bold", "my-block", "my-style", "clear", "my-callback", "clear-callback", "save"]}
+            controls={["h1", "h2", "h3", "bold", "my-block", "my-style", "clear", "my-callback", "clear-callback", "save"]}
             customControls={[
+                {
+                    name: "h1",
+                    style: "header-one",
+                    icon: <LooksOneIcon />,
+                    type: "block"
+                },
+                {
+                    name: "h2",
+                    style: "header-two",
+                    icon: <LooksTwoIcon />,
+                    type: "block"
+                },
+                {
+                    name: "h3",
+                    style: "header-three",
+                    icon: <Looks3Icon />,
+                    type: "block"
+                },
                 {
                     name: "my-style",
                     icon: <InvertColorsIcon />,
